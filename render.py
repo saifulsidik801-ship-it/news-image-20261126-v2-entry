@@ -182,9 +182,16 @@ def scene(dr, kind, x0, y0, x1, y1):
 d.rectangle([0, 0, W, 24], fill=NAVY)
 txt(512, 4, "THE WORLD IN ONE DAY  ·  36 STORIES  ·  10 REGIONS  ·  18 FIELDS  ·  ALL FIRST REPORTED ON THURSDAY 26 NOVEMBER 2026",
     SANS_B(12), (255, 255, 255), "ma")
-txt(512, 30, "Thursday 26 November 2026", SERIF_B(64), NAVY, "ma")
-txt(512, 102, "Nor'easter grounds Macy's 100th parade  ·  Missiles over Riyadh  ·  India marks 18 years since 26/11",
-    SERIF(20), RED, "ma")
+masthead = "Thursday 26 November 2026"
+mh_size = 64
+while mh_size > 30 and d.textlength(masthead, font=SERIF_B(mh_size)) > 980:
+    mh_size -= 1
+txt(512, 30, masthead, SERIF_B(mh_size), NAVY, "ma")
+lede = "Nor'easter grounds Macy's 100th parade  ·  Missiles over Riyadh  ·  India marks 18 years since 26/11"
+lede_size = 20
+while lede_size > 12 and d.textlength(lede, font=SERIF(lede_size)) > 1000:
+    lede_size -= 1
+txt(512, 102, lede, SERIF(lede_size), RED, "ma")
 # region strip
 regs = [("Europe", 8), ("East Asia", 6), ("N. America", 6), ("South Asia", 5), ("Oceania", 4),
         ("Middle East", 2), ("Africa", 2), ("SE Asia", 1), ("Latin Am", 1), ("World", 1)]
@@ -248,7 +255,7 @@ MIDS = [
     dict(n=5, kind="chess", region="Europe", field="SPORT", head="Gukesh meets Sindarov in Game 3",
          body="World title match level 1–1 after two draws; Game 3 in Geneva, 14:00 UTC.", src="FIDE", badge="CONFIRMED"),
     dict(n=6, kind="bok", region="East Asia", field="ECONOMY", head="Bank of Korea lifts key rate to 3.25%",
-         body="First above 3% since 2024; two of seven dissent; 2027 growth seen at 4.1%.", src="Bank of Korea", badge="OFFICIAL"),
+         body="First above 3% since 2024; two of seven dissent.", src="Bank of Korea", badge="OFFICIAL"),
     dict(n=7, kind="kyiv", region="Europe", field="WAR", head="Russian missiles hit Kyiv mall, 4 hurt",
          body="Overnight missiles; two in serious condition; power cuts round the clock.", src="Reuters", badge="REPORTED"),
     dict(n=8, kind="kim", region="East Asia", field="SECURITY", head="Kim calls for more tactical nuclear arms",

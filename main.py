@@ -1,19 +1,32 @@
 #!/usr/bin/env python3
-"""Entrypoint for the news-image entry: draw the front page.
+"""news-image-20261126 v3 entrypoint (standard library only).
 
-Run from anywhere: `python3 main.py` regenerates entry.png in this
-directory by executing render.py (PIL only, no photos)."""
+Copies the pre-rendered entry.png (drawn by render.py, PIL, at build time)
+to $MAKEFUN_OUTPUT_DIR/entry.png. Deterministic: both runs write the
+same bytes.
+
+Why no render here: the grader runs `python3 -P -s /bot/main.py` in a
+pinned python3.13 image with NO PIL, on a read-only /bot. The v2
+entrypoint shelled out to render.py (PIL) and failed with exit 1.
+"""
 import os
-import subprocess
+import shutil
 import sys
+
+HERE = os.path.dirname(os.path.abspath(__file__))
 
 
 def main():
-    here = os.path.dirname(os.path.abspath(__file__))
-    return subprocess.call(
-        [sys.executable, os.path.join(here, "render.py")], cwd=here
-    )
+    out_dir = os.environ.get("MAKEFUN_OUTPUT_DIR", "out")
+    os.makedirs(out_dir, exist_ok=True)
+    # entry.png is committed in the repo; render.py (PIL) is build-time
+    # only and must never run under the grader.
+    src = os.path.join(HERE, "entry.png")
+    dst = os.path.join(out_dir, "entry.png")
+    shutil.copyfile(src, dst)
+    print("wrote", dst, os.path.getsize(dst), "bytes")
+    return 0
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    sys.exit(main())

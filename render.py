@@ -692,7 +692,7 @@ LIST = [
     (19, "Trump demands probe of GDP data", "R", "N. America"),
     (20, "IRGC: two tankers hit by mines in Hormuz", "K", "Middle East"),
     (21, "UNCTAD: sea trade flat in 2026", "O", "World"),
-    (22, "UK calls up ~100,000 strategic reservists", "O", "Europe"),
+    (22, "UK writes to ~100,000 strategic reservists", "O", "Europe"),
     (23, "Korail work-to-rule slows trains", "R", "East Asia"),
     (24, "UK signs £8bn submarine deal with Babcock", "O", "Europe"),
     (25, "Europa League: 18 ties on matchday 5", "C", "Europe"),

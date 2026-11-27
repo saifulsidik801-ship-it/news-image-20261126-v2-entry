@@ -6,7 +6,11 @@ redrawn as a concrete Riyadh night scene (Kingdom Centre + Faisaliah globe tower
 street level with cars, two interceptor streaks, no abstract beam); mid art taller
 (70 -> 81px) and scene-led; denser detail in hero 1/3; body wording tightened on
 #7 (attribution disputed), #10 and #13 (unverified claims dropped). Same 36-story set,
-#22 keeps the fixed "UK writes to ~100,000 strategic reservists" wording."""
+#22 keeps the fixed "UK writes to ~100,000 strategic reservists" wording.
+v7 vs v6: story #20 replaced — the Hormuz tankers story was 25 Nov, not 26 Nov
+(independent data check); replaced with Davis Cup Spain 2-0 Austria (AP, 26 Nov,
+Alcaraz unused). #8 wording fixed: Kim himself urges the wider push, not
+"media urges". Nothing else changes."""
 from PIL import Image, ImageDraw, ImageFont
 import math, random
 
@@ -613,7 +617,7 @@ MIDS = [
     dict(n=7, kind="kuwait", region="Middle East", field="WAR", head="Drone strike in Kuwait kills two Italians",
          body="Drones hit an air-defence site; two Rheinmetall technicians die.", src="Reuters", badge="REPORTED"),
     dict(n=8, kind="kim", region="East Asia", field="SECURITY", head="Kim calls for more tactical nuclear arms",
-         body="KCNA shows Kim touring three nuclear sites; media urges a wider push.", src="KCNA · Yonhap", badge="OFFICIAL"),
+         body="KCNA shows Kim touring three nuclear sites; Kim urges a wider push.", src="KCNA · Yonhap", badge="OFFICIAL"),
     dict(n=9, kind="garment", region="South Asia", field="LABOUR", head="Garment workers clash with police",
          body="Tear gas in Gazipur as workers reject a 36% pay rise; highways blocked.", src="Reuters", badge="REPORTED"),
     dict(n=10, kind="tube", region="Europe", field="TRANSPORT", head="London Tube drivers begin eight-strike campaign",
@@ -735,7 +739,7 @@ LIST = [
     (17, "N. Korea pauses missile shipments to Russia", "K", "East Asia"),
     (18, "Zambia bans protest over term limits", "R", "Africa"),
     (19, "Trump demands probe of GDP data", "R", "N. America"),
-    (20, "IRGC: two tankers hit by mines in Hormuz", "K", "Middle East"),
+    (20, "Davis Cup: Spain sweep Austria 2-0, Alcaraz unused", "R", "Europe"),
     (21, "UNCTAD: sea trade flat in 2026", "O", "World"),
     (22, "UK writes to ~100,000 strategic reservists", "O", "Europe"),
     (23, "Korail work-to-rule slows trains", "R", "East Asia"),

@@ -293,34 +293,53 @@ def scene(dr, kind, x0, y0, x1, y1):
             dr.ellipse([px - 2, py - 2, px + 2, py + 2], fill=(20, 140, 60))
         pill(dr, x1 - 52, y0 + 4, x1 - 4, y0 + 18, (20, 140, 60), "3.25%", 10)
     elif kind == "kyiv":
+        # ALL elements stay inside the card box with a margin — nothing may
+        # touch or cross the frame (Sidik: "keluar kotak").
         vgrad(dr, x0, y0, x1, y1, (14, 22, 48), (30, 42, 75))
         rnd = random.Random(3)
-        for _ in range(14):
-            sx = rnd.randint(x0 + 2, x1 - 2); sy = rnd.randint(y0 + 2, y0 + 18)
+        for _ in range(12):
+            sx = rnd.randint(x0 + 6, x1 - 6); sy = rnd.randint(y0 + 6, y0 + 14)
             dr.ellipse([sx, sy, sx + 2, sy + 2], fill=(255, 255, 255))
-        # mall building with lit shop windows
-        dr.rectangle([x0 + 8, y0 + 20, x1 - 8, y1 - 14], fill=(70, 60, 80))
-        dr.rectangle([x0 + 8, y0 + 20, x1 - 8, y0 + 26], fill=(40, 36, 52))
-        for wx in range(x0 + 14, x1 - 14, 16):
-            dr.rectangle([wx, y0 + 32, wx + 10, y0 + 42], fill=(255, 210, 90))
-        # fire glow + smoke at roof corner
-        fx, fy = x1 - 30, y0 + 20
-        for r, col in [(16, (255, 110, 25)), (10, (255, 180, 50)), (5, (255, 240, 140))]:
-            dr.ellipse([fx - r, fy - r, fx + r, fy + r], fill=col)
-        for i, (sx, sy, sr) in enumerate([(x1 - 44, y0 + 6, 8), (x1 - 56, y0 - 2, 10), (x1 - 70, y0 - 6, 7)]):
-            dr.ellipse([sx - sr, sy - sr, sx + sr, sy + sr], fill=(110, 110, 115))
-        # ambulance, foreground left
-        ax, ay = x0 + 10, y1 - 16
-        dr.rectangle([ax, ay - 10, ax + 34, ay], fill=(245, 245, 245))
-        dr.rectangle([ax + 26, ay - 14, ax + 40, ay], fill=(245, 245, 245))
-        dr.rectangle([ax + 28, ay - 12, ax + 36, ay - 6], fill=(170, 220, 240))
-        dr.rectangle([ax + 12, ay - 8, ax + 18, ay - 2], fill=(220, 40, 40))
-        dr.rectangle([ax + 14, ay - 6, ax + 16, ay - 4], fill=(255, 255, 255))
-        dr.ellipse([ax + 6, ay - 2, ax + 12, ay + 4], fill=(25, 25, 25))
-        dr.ellipse([ax + 28, ay - 2, ax + 34, ay + 4], fill=(25, 25, 25))
-        dr.ellipse([ax + 16, ay - 15, ax + 20, ay - 11], fill=(255, 60, 60))
-        dr.ellipse([ax + 21, ay - 15, ax + 25, ay - 11], fill=(60, 120, 255))
-        pill(dr, x1 - 52, y1 - 16, x1 - 4, y1 - 2, (200, 40, 40), "4 HURT", 10)
+        # mall facade: sign band + glass front + entrance, all inside the box
+        dr.rectangle([x0 + 8, y0 + 20, x1 - 8, y1 - 18], fill=(70, 60, 80))
+        dr.rectangle([x0 + 8, y0 + 20, x1 - 8, y0 + 28], fill=(40, 36, 52))
+        txt(cx, y0 + 21, "MALL", SANS_B(9), (255, 220, 90), "ma")
+        for wx in range(x0 + 14, x1 - 14, 15):
+            dr.rectangle([wx, y0 + 32, wx + 9, y0 + 41], fill=(255, 210, 90))
+        for wx in range(x0 + 14, x1 - 14, 15):
+            if (wx // 15) % 3 != 2:
+                dr.rectangle([wx, y0 + 44, wx + 9, y0 + 52], fill=(255, 210, 90))
+            else:
+                dr.rectangle([wx, y0 + 44, wx + 9, y0 + 52], fill=(35, 30, 45))
+        # entrance, centre
+        dr.rectangle([cx - 11, y0 + 44, cx + 11, y1 - 18], fill=(200, 180, 140))
+        dr.line([cx, y0 + 44, cx, y1 - 18], fill=(120, 100, 70), width=1)
+        # fireball on the roof, right side — jagged flames, not a disc
+        fx, fy = x1 - 36, y0 + 30
+        dr.polygon([(fx - 12, fy + 4), (fx - 8, fy - 10), (fx - 3, fy - 2), (fx, fy - 14),
+                    (fx + 4, fy - 3), (fx + 9, fy - 11), (fx + 12, fy + 4), (fx, fy + 10)],
+                   fill=(255, 110, 25))
+        for r, col in [(8, (255, 170, 40)), (5, (255, 215, 90)), (2, (255, 245, 170))]:
+            dr.ellipse([fx - r, fy - r + 2, fx + r, fy + r + 2], fill=col)
+        # embers + smoke plume, capped below the top edge
+        for ex, ey in [(fx - 16, fy - 12), (fx + 14, fy - 14), (fx - 6, fy - 18), (fx + 8, fy - 20)]:
+            dr.ellipse([ex - 1, ey - 1, ex + 1, ey + 1], fill=(255, 180, 60))
+        for sx, sy, sr in [(x1 - 50, y0 + 12, 5), (x1 - 60, y0 + 9, 4), (x1 - 68, y0 + 12, 4)]:
+            dr.ellipse([sx - sr, sy - sr, sx + sr, sy + sr], fill=(115, 115, 120))
+        # ground line
+        dr.rectangle([x0 + 4, y1 - 18, x1 - 4, y1 - 16], fill=(25, 22, 38))
+        # ambulance, foreground left — FULL body inside the frame
+        ax = x0 + 10
+        dr.rectangle([ax, y1 - 15, ax + 28, y1 - 5], fill=(245, 245, 245))
+        dr.rectangle([ax + 28, y1 - 12, ax + 40, y1 - 5], fill=(245, 245, 245))
+        dr.rectangle([ax + 30, y1 - 10, ax + 37, y1 - 7], fill=(170, 220, 240))
+        dr.rectangle([ax + 8, y1 - 13, ax + 15, y1 - 6], fill=(220, 40, 40))
+        dr.rectangle([ax + 11, y1 - 11, ax + 12, y1 - 8], fill=(255, 255, 255))
+        dr.ellipse([ax + 4, y1 - 7, ax + 10, y1 - 1], fill=(25, 25, 25))
+        dr.ellipse([ax + 30, y1 - 7, ax + 36, y1 - 1], fill=(25, 25, 25))
+        dr.ellipse([ax + 13, y1 - 19, ax + 17, y1 - 15], fill=(255, 60, 60))
+        dr.ellipse([ax + 19, y1 - 19, ax + 23, y1 - 15], fill=(60, 120, 255))
+        pill(dr, x1 - 52, y1 - 17, x1 - 4, y1 - 3, (200, 40, 40), "4 HURT", 10)
     elif kind == "kim":
         vgrad(dr, x0, y0, x1, y1, (18, 18, 34), (40, 34, 60))
         rnd = random.Random(8)
@@ -378,30 +397,34 @@ def scene(dr, kind, x0, y0, x1, y1):
         for i, px in enumerate((x0 + 108, x0 + 126, x0 + 144)):
             person(dr, px, y1 - 16, 14, (200, 60, 40) if i % 2 else (30, 90, 160), (40, 40, 40))
     elif kind == "tube":
+        # ALL elements stay inside the card box with a margin — nothing may
+        # touch or cross the frame (Sidik: "keluar kotak").
         dr.rectangle([x0, y0, x1, y1], fill=(38, 48, 66))
-        dr.ellipse([cx - 60, y0 - 30, cx + 60, y1 - 8], fill=(24, 32, 48))
-        dr.ellipse([cx - 60, y0 - 30, cx + 60, y1 - 8], outline=(90, 100, 120), width=2)
+        # tunnel mouth, TOP THIRD only, fully inside the frame
+        dr.ellipse([cx - 36, y0 + 4, cx + 36, y0 + 26], fill=(24, 32, 48))
+        dr.ellipse([cx - 36, y0 + 4, cx + 36, y0 + 26], outline=(95, 105, 125), width=2)
+        dr.ellipse([cx - 22, y0 + 10, cx + 22, y0 + 26], fill=(16, 22, 36))
         # platform
-        dr.rectangle([x0, y1 - 14, x1, y1], fill=(120, 115, 105))
-        dr.rectangle([x0, y1 - 16, x1, y1 - 14], fill=(240, 200, 60))
-        # train
-        tx0, ty = cx - 8, y1 - 14
-        dr.rounded_rectangle([tx0, ty - 30, tx0 + 86, ty], 6, fill=(200, 30, 40))
-        dr.rectangle([tx0, ty - 30, tx0 + 86, ty - 22], fill=(40, 80, 160))
-        for wx in range(tx0 + 8, tx0 + 80, 18):
-            dr.rectangle([wx, ty - 20, wx + 12, ty - 10], fill=(190, 225, 245))
-        dr.ellipse([tx0 + 10, ty - 6, tx0 + 16, ty], fill=(255, 240, 150))
-        dr.ellipse([tx0 + 70, ty - 6, tx0 + 76, ty], fill=(255, 240, 150))
-        # tracks
-        dr.line([x0, y1 - 2, x1, y1 - 2], fill=(60, 60, 60), width=2)
-        # strike placard + figure, left
-        person(dr, x0 + 22, y1 - 14, 16, (220, 220, 220), (40, 40, 40))
-        dr.line([x0 + 30, y1 - 30, x0 + 30, y1 - 14], fill=(90, 60, 30), width=2)
-        dr.rectangle([x0 + 32, y1 - 44, x0 + 76, y1 - 30], fill=(255, 255, 255), outline=(200, 0, 0))
-        txt(x0 + 54, y1 - 42, "ON STRIKE", SANS_B(8), (200, 0, 0), "ma")
-        # roundel top-right
-        dr.ellipse([x1 - 34, y0 + 4, x1 - 10, y0 + 24], outline=(220, 30, 30), width=4)
-        dr.rectangle([x1 - 42, y0 + 11, x1 - 2, y0 + 17], fill=(20, 60, 160))
+        dr.rectangle([x0 + 2, y1 - 15, x1 - 2, y1 - 2], fill=(120, 115, 105))
+        dr.rectangle([x0 + 2, y1 - 17, x1 - 2, y1 - 15], fill=(240, 200, 60))
+        # red Tube train, BIG and fully in frame
+        tx0, tx1, ty = x0 + 82, x1 - 8, y1 - 17
+        dr.rounded_rectangle([tx0, ty - 29, tx1, ty], 6, fill=(200, 30, 40))
+        dr.rectangle([tx0, ty - 29, tx1, ty - 22], fill=(40, 80, 160))
+        for i in range(4):
+            wx = tx0 + 8 + i * 24
+            dr.rectangle([wx, ty - 19, wx + 15, ty - 9], fill=(190, 225, 245))
+        dr.ellipse([tx0 + 8, ty - 6, tx0 + 14, ty], fill=(255, 240, 150))
+        dr.ellipse([tx1 - 14, ty - 6, tx1 - 8, ty], fill=(255, 240, 150))
+        # roundel, top-right, fully inside the frame
+        rx, ry = x1 - 24, y0 + 13
+        dr.ellipse([rx - 8, ry - 8, rx + 8, ry + 8], outline=(220, 30, 30), width=3)
+        dr.rectangle([rx - 11, ry - 3, rx + 11, ry + 3], fill=(20, 60, 160))
+        # protester + placard, left, fully inside the frame
+        person(dr, x0 + 18, y1 - 17, 14, (220, 220, 220), (40, 40, 40))
+        dr.line([x0 + 26, y1 - 31, x0 + 26, y1 - 46], fill=(90, 60, 30), width=2)
+        dr.rectangle([x0 + 28, y1 - 46, x0 + 78, y1 - 33], fill=(255, 255, 255), outline=(200, 0, 0))
+        txt(x0 + 53, y1 - 44, "ON STRIKE", SANS_B(8), (200, 0, 0), "ma")
     elif kind == "stocks":
         dr.rectangle([x0, y0, x1, y1], fill=(18, 28, 44))
         # trading screens

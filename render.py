@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""news-image-20261126 v4 — one-day front page, drawn in code (PIL only, no photos).
-36 stories: 3 heroes + 10 mids + 23 list. All Nov 26 2026 only.
-v4: every card carries a REAL drawn scene (sky/ground/foreground, 3-5 elements);
-text renders after art; map is bigger with numbered pins + place labels."""
+"""news-image-20261126 v5 — one-day front page, drawn in code (PIL only, no photos).
+36 stories: 3 heroes + 10 mids + 23 list. All happened / first reported Thu 26 Nov 2026.
+v5: full story-date rebuild (17 wrong-date stories replaced, each verified against a
+primary Reuters/AP/BBC/UN News wire dated 26 Nov); full-width story-locator map;
+hero 2 redrawn as a real night interception scene; hero 1 = Bangkok refinery blast."""
 from PIL import Image, ImageDraw, ImageFont
 import math, random
 
@@ -21,6 +22,7 @@ REGION = {"Europe": (30, 80, 160), "East Asia": (180, 40, 40), "N. America": (0,
           "South Asia": (200, 120, 0), "Oceania": (0, 130, 160), "Middle East": (120, 60, 140),
           "Africa": (160, 90, 20), "SE Asia": (60, 140, 60), "Latin Am": (200, 60, 120),
           "World": (100, 100, 100)}
+BCOL = {"OFFICIAL": NAVY, "CONFIRMED": (0, 110, 60), "REPORTED": (170, 115, 0), "CLAIM": (160, 30, 90)}
 
 img = Image.new("RGB", (W, H), PAPER)
 d = ImageDraw.Draw(img)
@@ -109,55 +111,55 @@ def scene(dr, kind, x0, y0, x1, y1):
     """Draw a REAL scene inside box: sky, ground, foreground, 3-5 elements."""
     w, h = x1 - x0, y1 - y0
     cx, cy = (x0 + x1) // 2, (y0 + y1) // 2
-    if kind == "parade":
-        # Storm sky over a NYC avenue; deflated balloon lowered by crane truck.
-        vgrad(dr, x0, y0, x1, y1, (42, 58, 92), (110, 132, 165))
-        rnd = random.Random(11)
-        for _ in range(6):  # storm clouds
-            ccx = rnd.randint(x0, x1 - 60); ccy = rnd.randint(y0, y0 + 22)
-            dr.ellipse([ccx, ccy, ccx + 70, ccy + 16], fill=(60, 72, 100))
-        for _ in range(26):  # rain streaks
-            rx = rnd.randint(x0, x1); ry = rnd.randint(y0, y0 + h - 30)
-            dr.line([rx, ry, rx - 6, ry + 14], fill=(190, 205, 225), width=2)
-        buildings(dr, x0, y0 + 34, x0 + 62, y1 - 34, 21, (32, 46, 78), (255, 210, 90), 0.55)
-        buildings(dr, x1 - 62, y0 + 30, x1, y1 - 34, 33, (28, 42, 72), (255, 210, 90), 0.55)
-        # street in perspective
-        dr.polygon([(x0 + 62, y0 + 62), (x1 - 62, y0 + 62), (x1 - 30, y1 - 34), (x0 + 30, y1 - 34)],
-                   fill=(52, 56, 66))
-        for i in range(4):
-            yy = y0 + 70 + i * 14
-            ww = 4 + i * 3
-            dr.rectangle([cx - ww // 2, yy, cx + ww // 2, yy + 5], fill=(230, 200, 60))
-        # deflated balloon: sagging red shape with wrinkles + big 100
-        dr.ellipse([cx - 58, y0 + 6, cx + 58, y0 + 46], fill=(215, 45, 45))
-        dr.ellipse([cx - 40, y0 + 32, cx + 40, y0 + 60], fill=(200, 35, 35))
-        dr.ellipse([cx - 58, y0 + 38, cx - 30, y0 + 58], fill=(200, 35, 35))
-        dr.ellipse([cx + 30, y0 + 38, cx + 58, y0 + 58], fill=(200, 35, 35))
-        dr.arc([cx - 44, y0 + 12, cx + 44, y0 + 42], 20, 160, fill=(160, 25, 25), width=2)
-        dr.arc([cx - 28, y0 + 18, cx + 28, y0 + 48], 20, 160, fill=(160, 25, 25), width=2)
-        txt(cx, y0 + 12, "100", SERIF_B(22), (255, 255, 255), "ma")
-        # ropes from balloon to crane + handlers
-        dr.line([cx - 40, y0 + 54, cx - 78, y1 - 52], fill=(240, 240, 240), width=2)
-        dr.line([cx + 40, y0 + 54, cx + 78, y1 - 52], fill=(240, 240, 240), width=2)
-        dr.line([cx - 16, y0 + 58, cx - 30, y1 - 52], fill=(240, 240, 240), width=2)
-        dr.line([cx + 16, y0 + 58, cx + 30, y1 - 52], fill=(240, 240, 240), width=2)
-        # crane truck (right) + handler crew (left)
-        dr.rectangle([x1 - 108, y1 - 58, x1 - 34, y1 - 36], fill=(240, 190, 40))
-        dr.rectangle([x1 - 108, y1 - 72, x1 - 84, y1 - 58], fill=(240, 190, 40))
-        dr.rectangle([x1 - 104, y1 - 68, x1 - 88, y1 - 60], fill=(180, 230, 240))
-        dr.line([x1 - 96, y1 - 70, cx + 56, y0 + 44], fill=(220, 170, 30), width=4)
-        for wx in (x1 - 100, x1 - 76, x1 - 52):
-            dr.ellipse([wx, y1 - 36, wx + 12, y1 - 24], fill=(25, 25, 25))
-        for i, px in enumerate((x0 + 44, x0 + 58, x0 + 72)):
-            person(dr, px, y1 - 36, 16, (30, 90, 160) if i % 2 else (200, 60, 40), (40, 40, 40))
-        # crowd barriers along the bottom, above the banner
-        for bx in range(x0 + 6, x1 - 6, 34):
-            dr.rectangle([bx, y1 - 34, bx + 28, y1 - 22], fill=(200, 200, 200), outline=(120, 120, 120))
-            dr.rectangle([bx, y1 - 34, bx + 9, y1 - 22], fill=(240, 120, 30))
-        dr.rectangle([x0, y1 - 20, x1, y1], fill=(200, 40, 40))
-        txt(cx, y1 - 17, "POSTPONED TO SATURDAY", SANS_B(13), (255, 255, 255), "ma")
+    if kind == "bangchak":
+        # Bangchak refinery, Bangkok, Thu afternoon: dusk sky, distillation
+        # towers, storage tanks, fireball + black smoke, fire crews.
+        vgrad(dr, x0, y0, x1, y1, (70, 60, 90), (235, 150, 80))
+        dr.ellipse([x1 - 40, y0 + 6, x1 - 12, y0 + 34], fill=(255, 220, 140))
+        # distant city skyline
+        buildings(dr, x0, y0 + 44, x1, y1 - 26, 31, (52, 48, 70), (255, 200, 110), 0.4)
+        # refinery: storage tanks (left) + distillation towers (centre-right)
+        for tx in (x0 + 14, x0 + 52):
+            dr.ellipse([tx, y1 - 52, tx + 34, y1 - 40], fill=(190, 190, 195))
+            dr.rectangle([tx, y1 - 46, tx + 34, y1 - 26], fill=(200, 200, 205))
+            dr.line([tx + 4, y1 - 46, tx + 30, y1 - 46], fill=(150, 150, 155), width=1)
+        for tx, th in ((x0 + 108, 58), (x0 + 132, 72), (x0 + 158, 52)):
+            dr.rectangle([tx, y1 - 26 - th, tx + 14, y1 - 26], fill=(120, 120, 128))
+            dr.rectangle([tx - 3, y1 - 26 - th - 6, tx + 17, y1 - 26 - th], fill=(100, 100, 108))
+            for py in range(y1 - 26 - th + 6, y1 - 28, 10):
+                dr.rectangle([tx + 2, py, tx + 12, py + 3], fill=(255, 190, 90))
+        # connecting pipes
+        dr.line([x0 + 48, y1 - 34, x0 + 108, y1 - 34], fill=(140, 140, 148), width=3)
+        dr.line([x0 + 172, y1 - 40, x1 - 30, y1 - 40], fill=(140, 140, 148), width=3)
+        # fireball at the hydrocracking tower + embers
+        fx, fy = x0 + 139, y1 - 62
+        dr.polygon([(fx - 16, fy + 8), (fx - 11, fy - 12), (fx - 4, fy - 2), (fx, fy - 18),
+                    (fx + 5, fy - 3), (fx + 12, fy - 13), (fx + 16, fy + 8), (fx, fy + 14)],
+                   fill=(255, 110, 25))
+        for r, col in [(11, (255, 170, 40)), (7, (255, 215, 90)), (3, (255, 245, 170))]:
+            dr.ellipse([fx - r, fy - r, fx + r, fy + r], fill=col)
+        rnd = random.Random(7)
+        for _ in range(10):
+            ex = fx + rnd.randint(-24, 24); ey = fy + rnd.randint(-26, 4)
+            dr.ellipse([ex - 1, ey - 1, ex + 1, ey + 1], fill=(255, 180, 60))
+        # thick black smoke plume, drifting right, capped below the top edge
+        for sx, sy, sr in [(fx + 6, y0 + 14, 12), (fx + 22, y0 + 10, 10), (fx + 38, y0 + 14, 9),
+                           (fx + 52, y0 + 20, 8), (fx + 64, y0 + 28, 7)]:
+            dr.ellipse([sx - sr, sy - sr, sx + sr, sy + sr], fill=(45, 42, 48))
+        # ground + fire truck with water arc (left) + crew
+        dr.rectangle([x0, y1 - 26, x1, y1], fill=(60, 58, 64))
+        dr.rectangle([x0 + 8, y1 - 22, x0 + 52, y1 - 8], fill=(200, 40, 40))
+        dr.rectangle([x0 + 38, y1 - 22, x0 + 52, y1 - 14], fill=(200, 40, 40))
+        dr.rectangle([x0 + 40, y1 - 19, x0 + 49, y1 - 15], fill=(170, 220, 240))
+        dr.ellipse([x0 + 12, y1 - 10, x0 + 20, y1 - 2], fill=(25, 25, 25))
+        dr.ellipse([x0 + 38, y1 - 10, x0 + 46, y1 - 2], fill=(25, 25, 25))
+        dr.arc([x0 + 52, y1 - 34, x0 + 96, y1 - 6], 300, 20, fill=(170, 220, 245), width=2)
+        for i, px in enumerate((x0 + 66, x0 + 80, x0 + 94)):
+            person(dr, px, y1 - 8, 15, (240, 200, 40) if i % 2 else (30, 90, 160), (40, 40, 40))
+        pill(dr, x1 - 62, y0 + 4, x1 - 4, y0 + 18, (200, 40, 40), "9 HURT", 10)
     elif kind == "riyadh":
-        # Night skyline, two interceptor arcs, explosion bursts, searchlights.
+        # Night interception over the Riyadh skyline: towers, two interceptor
+        # trails, two explosion bursts, a ground launcher firing upward.
         vgrad(dr, x0, y0, x1, y1, (8, 16, 40), (28, 44, 80))
         rnd = random.Random(5)
         for _ in range(30):
@@ -172,16 +174,28 @@ def scene(dr, kind, x0, y0, x1, y1):
         for wy in range(y0 + 62, y1 - 4, 10):
             dr.rectangle([tx + 4, wy, tx + 8, wy + 4], fill=(255, 210, 90))
             dr.rectangle([tx + 18, wy, tx + 22, wy + 4], fill=(255, 210, 90))
-        # searchlight beams
-        for bx in (x0 + 40, x0 + 120):
-            dr.polygon([(bx, y1), (bx + 8, y1), (bx + 34, y0 + 6), (bx + 22, y0 + 6)], fill=(200, 210, 140))
-        # interceptor arcs + bursts
-        dr.arc([x0 + 8, y0 + 2, x1 - 40, y0 + 78], 200, 335, fill=(255, 200, 60), width=3)
-        dr.arc([x0 + 46, y0 + 14, x1 - 8, y0 + 92], 205, 325, fill=(255, 130, 60), width=3)
-        burst(dr, x1 - 52, y0 + 24, 16, (255, 200, 80))
-        burst(dr, x0 + 62, y0 + 36, 13, (255, 220, 100))
-        for r, col in [(22, (255, 120, 30)), (13, (255, 180, 60)), (6, (255, 240, 150))]:
-            dr.ellipse([x1 - 52 - r, y0 + 24 - r, x1 - 52 + r, y0 + 24 + r], fill=col)
+        # incoming missile streak (top-left, bright head + trail)
+        dr.line([x0 + 18, y0 + 10, x0 + 66, y0 + 34], fill=(255, 240, 200), width=2)
+        dr.ellipse([x0 + 62, y0 + 30, x0 + 70, y0 + 38], fill=(255, 200, 80))
+        # interceptor arcs (thin white-gold trails, not beams)
+        dr.arc([x0 + 8, y0 + 2, x1 - 40, y0 + 78], 200, 335, fill=(255, 220, 140), width=2)
+        dr.arc([x0 + 46, y0 + 14, x1 - 8, y0 + 92], 205, 325, fill=(255, 170, 90), width=2)
+        # two interception bursts: starburst rays + small hot core (no big disc)
+        burst(dr, x1 - 52, y0 + 26, 14, (255, 200, 80))
+        burst(dr, x0 + 62, y0 + 38, 11, (255, 220, 100))
+        for r, col in [(9, (255, 150, 40)), (5, (255, 210, 90))]:
+            dr.ellipse([x1 - 52 - r, y0 + 26 - r, x1 - 52 + r, y0 + 26 + r], fill=col)
+            dr.ellipse([x0 + 62 - r, y0 + 38 - r, x0 + 62 + r, y0 + 38 + r], fill=col)
+        # ground launcher (left) firing a rising interceptor
+        lx0, ly = x0 + 96, y1 - 6
+        dr.rectangle([lx0, ly - 12, lx0 + 46, ly], fill=(60, 80, 60))
+        dr.rectangle([lx0 + 32, ly - 18, lx0 + 46, ly - 12], fill=(70, 90, 70))
+        for wx in (lx0 + 6, lx0 + 20, lx0 + 34):
+            dr.ellipse([wx, ly - 2, wx + 8, ly + 4], fill=(20, 20, 20))
+        mx = lx0 + 14
+        dr.polygon([(mx - 4, ly - 12), (mx - 4, y0 + 52), (mx, y0 + 44), (mx + 4, y0 + 52), (mx + 4, ly - 12)],
+                   fill=(225, 225, 225))
+        dr.polygon([(mx - 3, ly - 12), (mx + 3, ly - 12), (mx + 6, ly - 2), (mx - 6, ly - 2)], fill=(255, 140, 40))
         # alert lights on rooftops
         for ax in (x0 + 30, x0 + 150, x1 - 110):
             dr.ellipse([ax, y0 + 48, ax + 5, y0 + 53], fill=(255, 60, 60))
@@ -292,54 +306,40 @@ def scene(dr, kind, x0, y0, x1, y1):
         for px, py in pts[1:-1]:
             dr.ellipse([px - 2, py - 2, px + 2, py + 2], fill=(20, 140, 60))
         pill(dr, x1 - 52, y0 + 4, x1 - 4, y0 + 18, (20, 140, 60), "3.25%", 10)
-    elif kind == "kyiv":
-        # ALL elements stay inside the card box with a margin — nothing may
-        # touch or cross the frame (Sidik: "keluar kotak").
-        vgrad(dr, x0, y0, x1, y1, (14, 22, 48), (30, 42, 75))
-        rnd = random.Random(3)
-        for _ in range(12):
-            sx = rnd.randint(x0 + 6, x1 - 6); sy = rnd.randint(y0 + 6, y0 + 14)
+    elif kind == "kuwait":
+        # Night air-defence site in Kuwait: radar dome, interceptor launch,
+        # explosion burst, facility buildings, desert ground. All inside frame.
+        vgrad(dr, x0, y0, x1, y1, (10, 18, 44), (34, 48, 84))
+        rnd = random.Random(6)
+        for _ in range(14):
+            sx = rnd.randint(x0 + 2, x1 - 2); sy = rnd.randint(y0 + 2, y0 + 20)
             dr.ellipse([sx, sy, sx + 2, sy + 2], fill=(255, 255, 255))
-        # mall facade: sign band + glass front + entrance, all inside the box
-        dr.rectangle([x0 + 8, y0 + 20, x1 - 8, y1 - 18], fill=(70, 60, 80))
-        dr.rectangle([x0 + 8, y0 + 20, x1 - 8, y0 + 28], fill=(40, 36, 52))
-        txt(cx, y0 + 21, "MALL", SANS_B(9), (255, 220, 90), "ma")
-        for wx in range(x0 + 14, x1 - 14, 15):
-            dr.rectangle([wx, y0 + 32, wx + 9, y0 + 41], fill=(255, 210, 90))
-        for wx in range(x0 + 14, x1 - 14, 15):
-            if (wx // 15) % 3 != 2:
-                dr.rectangle([wx, y0 + 44, wx + 9, y0 + 52], fill=(255, 210, 90))
-            else:
-                dr.rectangle([wx, y0 + 44, wx + 9, y0 + 52], fill=(35, 30, 45))
-        # entrance, centre
-        dr.rectangle([cx - 11, y0 + 44, cx + 11, y1 - 18], fill=(200, 180, 140))
-        dr.line([cx, y0 + 44, cx, y1 - 18], fill=(120, 100, 70), width=1)
-        # fireball on the roof, right side — jagged flames, not a disc
-        fx, fy = x1 - 36, y0 + 30
-        dr.polygon([(fx - 12, fy + 4), (fx - 8, fy - 10), (fx - 3, fy - 2), (fx, fy - 14),
-                    (fx + 4, fy - 3), (fx + 9, fy - 11), (fx + 12, fy + 4), (fx, fy + 10)],
-                   fill=(255, 110, 25))
-        for r, col in [(8, (255, 170, 40)), (5, (255, 215, 90)), (2, (255, 245, 170))]:
-            dr.ellipse([fx - r, fy - r + 2, fx + r, fy + r + 2], fill=col)
-        # embers + smoke plume, capped below the top edge
-        for ex, ey in [(fx - 16, fy - 12), (fx + 14, fy - 14), (fx - 6, fy - 18), (fx + 8, fy - 20)]:
-            dr.ellipse([ex - 1, ey - 1, ex + 1, ey + 1], fill=(255, 180, 60))
-        for sx, sy, sr in [(x1 - 50, y0 + 12, 5), (x1 - 60, y0 + 9, 4), (x1 - 68, y0 + 12, 4)]:
-            dr.ellipse([sx - sr, sy - sr, sx + sr, sy + sr], fill=(115, 115, 120))
-        # ground line
-        dr.rectangle([x0 + 4, y1 - 18, x1 - 4, y1 - 16], fill=(25, 22, 38))
-        # ambulance, foreground left — FULL body inside the frame
-        ax = x0 + 10
-        dr.rectangle([ax, y1 - 15, ax + 28, y1 - 5], fill=(245, 245, 245))
-        dr.rectangle([ax + 28, y1 - 12, ax + 40, y1 - 5], fill=(245, 245, 245))
-        dr.rectangle([ax + 30, y1 - 10, ax + 37, y1 - 7], fill=(170, 220, 240))
-        dr.rectangle([ax + 8, y1 - 13, ax + 15, y1 - 6], fill=(220, 40, 40))
-        dr.rectangle([ax + 11, y1 - 11, ax + 12, y1 - 8], fill=(255, 255, 255))
-        dr.ellipse([ax + 4, y1 - 7, ax + 10, y1 - 1], fill=(25, 25, 25))
-        dr.ellipse([ax + 30, y1 - 7, ax + 36, y1 - 1], fill=(25, 25, 25))
-        dr.ellipse([ax + 13, y1 - 19, ax + 17, y1 - 15], fill=(255, 60, 60))
-        dr.ellipse([ax + 19, y1 - 19, ax + 23, y1 - 15], fill=(60, 120, 255))
-        pill(dr, x1 - 52, y1 - 17, x1 - 4, y1 - 3, (200, 40, 40), "4 HURT", 10)
+        # desert ground
+        dr.rectangle([x0, y1 - 16, x1, y1], fill=(72, 62, 48))
+        # facility buildings with lit windows
+        dr.rectangle([x0 + 8, y0 + 34, x0 + 46, y1 - 16], fill=(70, 70, 85))
+        for wy in range(y0 + 38, y1 - 18, 8):
+            dr.rectangle([x0 + 12, wy, x0 + 16, wy + 4], fill=(255, 210, 90))
+            dr.rectangle([x0 + 24, wy, x0 + 28, wy + 4], fill=(255, 210, 90))
+        # radar dome + dish on a mast
+        dr.rectangle([x0 + 52, y0 + 40, x0 + 66, y1 - 16], fill=(90, 90, 100))
+        dr.ellipse([x0 + 50, y0 + 30, x0 + 68, y0 + 42], fill=(220, 220, 225))
+        dr.line([x0 + 76, y0 + 44, x0 + 76, y0 + 26], fill=(180, 180, 190), width=2)
+        dr.ellipse([x0 + 70, y0 + 20, x0 + 82, y0 + 30], outline=(220, 220, 225), width=2)
+        # interceptor streak + burst in the sky (right)
+        dr.line([x1 - 70, y1 - 16, x1 - 44, y0 + 26], fill=(255, 240, 200), width=2)
+        burst(dr, x1 - 40, y0 + 22, 10, (255, 200, 80))
+        for r, col in [(7, (255, 150, 40)), (4, (255, 215, 90))]:
+            dr.ellipse([x1 - 40 - r, y0 + 22 - r, x1 - 40 + r, y0 + 22 + r], fill=col)
+        # smoke plume under the burst
+        for sx, sy, sr in [(x1 - 52, y0 + 30, 4), (x1 - 58, y0 + 36, 5), (x1 - 64, y0 + 42, 4)]:
+            dr.ellipse([sx - sr, sy - sr, sx + sr, sy + sr], fill=(110, 110, 116))
+        # launcher truck, foreground centre-right
+        lx0, ly = x1 - 96, y1 - 16
+        dr.rectangle([lx0, ly - 10, lx0 + 40, ly], fill=(60, 90, 60))
+        for wx in (lx0 + 5, lx0 + 19, lx0 + 30):
+            dr.ellipse([wx, ly - 2, wx + 8, ly + 5], fill=(20, 20, 20))
+        pill(dr, x1 - 56, y0 + 4, x1 - 4, y0 + 18, (200, 40, 40), "2 KILLED", 10)
     elif kind == "kim":
         vgrad(dr, x0, y0, x1, y1, (18, 18, 34), (40, 34, 60))
         rnd = random.Random(8)
@@ -371,31 +371,35 @@ def scene(dr, kind, x0, y0, x1, y1):
                     (sx, sy + 3), (sx - 3, sy + 6), (sx - 2, sy + 2), (sx - 6, sy), (sx - 2, sy - 1)],
                    fill=(255, 220, 60))
         txt(x0 + 6, y0 + 4, "KCNA", SANS_B(10), (255, 255, 255), "la")
-    elif kind == "school":
-        vgrad(dr, x0, y0, x1, y1, (250, 235, 200), (235, 245, 210))
-        dr.rectangle([x0, y1 - 16, x1, y1], fill=(120, 190, 110))
-        # school building
-        dr.rectangle([x0 + 8, y0 + 18, x0 + 74, y1 - 16], fill=(245, 235, 210))
-        dr.polygon([(x0 + 4, y0 + 20), (x0 + 78, y0 + 20), (x0 + 41, y0 + 6)], fill=(200, 80, 60))
-        dr.rectangle([x0 + 36, y1 - 30, x0 + 46, y1 - 16], fill=(120, 80, 50))
-        for wx in (x0 + 14, x0 + 56):
-            dr.rectangle([wx, y0 + 26, wx + 12, y0 + 36], fill=(170, 210, 235))
-        # flag pole
-        dr.line([x0 + 74, y0 + 6, x0 + 74, y0 + 20], fill=(90, 60, 30), width=2)
-        dr.rectangle([x0 + 74, y0 + 6, x0 + 88, y0 + 11], fill=(20, 140, 60))
-        dr.rectangle([x0 + 74, y0 + 11, x0 + 88, y0 + 16], fill=(255, 255, 255))
-        # yellow school bus
-        bx0, by = x0 + 92, y1 - 16
-        dr.rectangle([bx0, by - 18, bx0 + 62, by], fill=(250, 200, 30))
-        dr.rectangle([bx0 + 44, by - 18, bx0 + 62, by - 10], fill=(250, 200, 30))
-        for wx in range(bx0 + 5, bx0 + 42, 12):
-            dr.rectangle([wx, by - 15, wx + 8, by - 7], fill=(170, 220, 240))
-        dr.ellipse([bx0 + 8, by - 2, bx0 + 16, by + 6], fill=(25, 25, 25))
-        dr.ellipse([bx0 + 44, by - 2, bx0 + 52, by + 6], fill=(25, 25, 25))
-        # figures + FREED placard
-        pill(dr, x0 + 96, y0 + 4, x0 + 152, y0 + 18, (20, 120, 50), "FREED", 10)
-        for i, px in enumerate((x0 + 108, x0 + 126, x0 + 144)):
-            person(dr, px, y1 - 16, 14, (200, 60, 40) if i % 2 else (30, 90, 160), (40, 40, 40))
+    elif kind == "garment":
+        # Gazipur street: garment factory, marching workers with a placard,
+        # tear-gas smoke, police line with shields. All inside the frame.
+        vgrad(dr, x0, y0, x1, y1, (200, 220, 235), (240, 235, 215))
+        # factory with sawtooth roof
+        dr.rectangle([x0 + 6, y0 + 16, x0 + 78, y1 - 16], fill=(190, 120, 70))
+        for i in range(3):
+            dr.polygon([(x0 + 6 + i * 24, y0 + 16), (x0 + 18 + i * 24, y0 + 6),
+                        (x0 + 30 + i * 24, y0 + 16)], fill=(150, 90, 50))
+        for wx in range(x0 + 12, x0 + 74, 14):
+            dr.rectangle([wx, y0 + 24, wx + 8, y0 + 32], fill=(255, 240, 180))
+        dr.rectangle([x0 + 34, y1 - 28, x0 + 46, y1 - 16], fill=(120, 80, 50))
+        # road
+        dr.rectangle([x0, y1 - 16, x1, y1], fill=(90, 88, 84))
+        dr.line([x0 + 6, y1 - 8, x1 - 6, y1 - 8], fill=(240, 220, 60), width=1)
+        # tear-gas smoke puffs
+        for sx, sy, sr in [(x0 + 104, y0 + 22, 8), (x0 + 120, y0 + 14, 6),
+                           (x0 + 150, y0 + 24, 7), (x0 + 164, y0 + 16, 5)]:
+            dr.ellipse([sx - sr, sy - sr, sx + sr, sy + sr], fill=(225, 225, 220))
+        # marching workers with a placard
+        for i, px in enumerate((x0 + 96, x0 + 110, x0 + 124, x0 + 138)):
+            person(dr, px, y1 - 16, 15, (30, 90, 160) if i % 2 else (200, 60, 40), (40, 40, 40))
+        dr.line([x0 + 104, y1 - 31, x0 + 104, y1 - 48], fill=(90, 60, 30), width=2)
+        dr.rectangle([x0 + 106, y1 - 48, x0 + 140, y1 - 36], fill=(255, 255, 255), outline=(200, 0, 0))
+        txt(x0 + 123, y1 - 46, "PAY UP", SANS_B(8), (200, 0, 0), "ma")
+        # police line with shields (right edge, inside frame)
+        for i, px in enumerate((x1 - 34, x1 - 20)):
+            person(dr, px, y1 - 16, 16, (30, 30, 40), (30, 30, 40))
+            dr.rectangle([px - 7, y1 - 30, px + 7, y1 - 16], fill=(60, 60, 80), outline=(200, 200, 200))
     elif kind == "tube":
         # ALL elements stay inside the card box with a margin — nothing may
         # touch or cross the frame (Sidik: "keluar kotak").
@@ -483,71 +487,71 @@ def scene(dr, kind, x0, y0, x1, y1):
         txt(x1 - 6, y0 + 22, "REMEMBERED", SANS_B(8), (220, 210, 200), "ra")
 
 # ---------------------------------------------------------------- header
-d.rectangle([0, 0, W, 24], fill=NAVY)
-txt(512, 4, "THE WORLD IN ONE DAY  ·  36 STORIES  ·  10 REGIONS  ·  18 FIELDS  ·  ALL FIRST REPORTED ON THURSDAY 26 NOVEMBER 2026",
+d.rectangle([0, 0, W, 22], fill=NAVY)
+txt(512, 4, "THE WORLD IN ONE DAY  ·  36 STORIES  ·  9 REGIONS  ·  21 FIELDS  ·  ALL FIRST REPORTED ON THURSDAY 26 NOVEMBER 2026",
     SANS_B(12), (255, 255, 255), "ma")
 masthead = "Thursday 26 November 2026"
-mh_size = 62
+mh_size = 56
 while mh_size > 30 and d.textlength(masthead, font=SERIF_B(mh_size)) > 980:
     mh_size -= 1
-txt(512, 28, masthead, SERIF_B(mh_size), NAVY, "ma")
-lede = "Nor'easter grounds Macy's 100th parade  ·  Missiles over Riyadh  ·  India marks 18 years since 26/11"
-lede_size = 20
+txt(512, 24, masthead, SERIF_B(mh_size), NAVY, "ma")
+lede = "Refinery blast in Bangkok  ·  Missiles over Riyadh  ·  India marks 18 years since 26/11"
+lede_size = 19
 while lede_size > 12 and d.textlength(lede, font=SERIF(lede_size)) > 1000:
     lede_size -= 1
-txt(512, 98, lede, SERIF(lede_size), RED, "ma")
+txt(512, 84, lede, SERIF(lede_size), RED, "ma")
 # region strip
-regs = [("Europe", 8), ("East Asia", 6), ("N. America", 6), ("South Asia", 5), ("Oceania", 4),
-        ("Middle East", 2), ("Africa", 2), ("SE Asia", 1), ("Latin Am", 1), ("World", 1)]
+regs = [("Europe", 10), ("East Asia", 7), ("N. America", 5), ("Middle East", 3), ("Africa", 3),
+        ("Oceania", 3), ("South Asia", 2), ("World", 2), ("SE Asia", 1)]
 x = 12
 for name, n in regs:
     lab = f"{name} {n}"
     wdt = d.textlength(lab, font=SANS_B(12)) + 14
-    d.rounded_rectangle([x, 124, x + wdt, 144], 4, fill=REGION[name])
-    d.text((x + 7, 128), lab, font=SANS_B(12), fill=(255, 255, 255))
+    d.rounded_rectangle([x, 108, x + wdt, 126], 4, fill=REGION[name])
+    d.text((x + 7, 112), lab, font=SANS_B(12), fill=(255, 255, 255))
     x += wdt + 5
 # number strip
-nums = [("100", "100th Macy's parade,\nfirst weather delay"), ("2", "missiles downed\nover Riyadh"),
+nums = [("9", "hurt in Bangkok\nrefinery blast"), ("2", "missiles downed\nover Riyadh"),
         ("18", "years since\nthe 26/11 attacks"), ("3.25%", "Bank of Korea\nkey rate"),
-        ("4", "hurt in Kyiv\nmall strike"), ("24", "schoolgirls freed\nin Nigeria")]
+        ("77,000", "UK net migration,\nlowest since 1997"), ("12,021", "Congo Ebola cases,\nsecond-largest ever")]
 cw = (W - 24) // 6
 for i, (num, lab) in enumerate(nums):
     x0 = 12 + i * cw
-    d.rectangle([x0, 148, x0 + cw - 4, 192], fill=(255, 255, 255), outline=(200, 190, 170))
-    txt(x0 + (cw - 4) // 2, 150, num, SERIF_B(24), NAVY, "ma")
+    d.rectangle([x0, 128, x0 + cw - 4, 168], fill=(255, 255, 255), outline=(200, 190, 170))
+    txt(x0 + (cw - 4) // 2, 130, num, SERIF_B(24), NAVY, "ma")
     ll = lab.split("\n")
-    txt(x0 + (cw - 4) // 2, 176, ll[0], SANS(9), GREY, "ma")
-    txt(x0 + (cw - 4) // 2, 185, ll[1], SANS(9), GREY, "ma")
+    txt(x0 + (cw - 4) // 2, 153, ll[0], SANS(9), GREY, "ma")
+    txt(x0 + (cw - 4) // 2, 162, ll[1], SANS(9), GREY, "ma")
 # timeline
-d.rectangle([0, 196, W, 216], fill=NAVY)
-tl = "THE DAY IN UTC   00:50  Bank of Korea hikes   ·   09:00  EU summit opens   ·   14:00  Chess Game 3   ·   15:00  NYC wind alert   ·   18:00  NFL games"
-txt(12, 200, tl, SANS_B(11), (255, 255, 255), "la")
+d.rectangle([0, 174, W, 194], fill=NAVY)
+tl = "THE DAY IN UTC  00:50 Bank of Korea hikes · 08:00 Bangkok blast · 08:00 EU summit opens · 14:00 Chess Game 3 · 17:30 NFL kicks off · 19:55 DCA ground stop"
+txt(12, 178, tl, SANS_B(11), (255, 255, 255), "la")
 
 # ---------------------------------------------------------------- heroes
 HEROES = [
-    dict(n=1, kind="parade", region="N. America", field="CULTURE", head="Nor'easter grounds Macy's 100th parade",
-         body="The 100th parade moves to Saturday — the first weather delay in a century. Gusts to 60 mph.",
-         why="WHY: a century-old ritual stopped by weather. — Reuters · AP", badge="CONFIRMED"),
+    dict(n=1, kind="bangchak", region="SE Asia", field="DISASTER", head="Refinery blast rocks Bangkok",
+         body="Nine hurt as a hydrocracking unit explodes at the Bangchak refinery; output halted.",
+         why="WHY: the day's biggest industrial disaster. — CNN", badge="CONFIRMED"),
     dict(n=2, kind="riyadh", region="Middle East", field="WAR", head="Saudi defences down two missiles over Riyadh",
-         body="Two ballistic missiles aimed at the capital are destroyed early Thursday; a drone is downed near Jeddah.",
+         body="Two ballistic missiles aimed at the capital are destroyed early Thursday; drones are downed in the Eastern Region.",
          why="WHY: a second straight day of strikes. — Reuters · Al Jazeera", badge="OFFICIAL"),
     dict(n=3, kind="mumbai", region="South Asia", field="REMEMBRANCE", head="India marks 18 years since 26/11",
          body="Tributes for the 166 killed in the 2008 Mumbai attacks, as the nation marks 77 years of its Constitution.",
          why="WHY: the date itself is the anniversary. — PTI · PIB", badge="OFFICIAL"),
 ]
-hy, hh = 222, 232
+hy, hh = 198, 220
 for i, h in enumerate(HEROES):
     x0 = 12 + i * 336; x1 = x0 + 328
     d.rectangle([x0, hy, x1, hy + hh], fill=(255, 255, 255), outline=(190, 180, 160))
-    scene(d, h["kind"], x0 + 4, hy + 4, x1 - 4, hy + 132)
+    scene(d, h["kind"], x0 + 4, hy + 4, x1 - 4, hy + 128)
     num_badge(d, x0 + 10, hy + 10, h["n"], 24)
-    txt(x0 + 8, hy + 138, f"{h['region'].upper()} — {h['field']}", SANS_B(10), RED, "la")
-    badge(x1 - 92, hy + 136, h["badge"], (0, 110, 60) if h["badge"] != "OFFICIAL" else NAVY)
+    txt(x0 + 8, hy + 132, f"{h['region'].upper()} — {h['field']}", SANS_B(10), RED, "la")
+    badge(x1 - 92, hy + 130, h["badge"], BCOL[h["badge"]])
     hl = wrap(h["head"], SERIF_B(15), 306)
     for j, ln in enumerate(hl[:2]):
-        txt(x0 + 8, hy + 152 + j * 17, ln, SERIF_B(15), INK, "la")
+        txt(x0 + 8, hy + 146 + j * 17, ln, SERIF_B(15), INK, "la")
     bl = wrap(h["body"], SANS(10), 312)
-    by = hy + 152 + len(hl[:2]) * 17 + 4
+    by = hy + 146 + len(hl[:2]) * 17 + 4
     for j, ln in enumerate(bl[:2]):
         txt(x0 + 8, by + j * 11, ln, SANS(10), INK, "la")
     wf = fit_font(h["why"], 312, 9, bold=False)
@@ -561,12 +565,12 @@ MIDS = [
          body="World title match level 1–1 after two draws; Game 3 in Geneva, 14:00 UTC.", src="FIDE", badge="CONFIRMED"),
     dict(n=6, kind="bok", region="East Asia", field="ECONOMY", head="Bank of Korea lifts key rate to 3.25%",
          body="First above 3% since 2024; two of seven dissent.", src="Bank of Korea", badge="OFFICIAL"),
-    dict(n=7, kind="kyiv", region="Europe", field="WAR", head="Russian missiles hit Kyiv mall, 4 hurt",
-         body="Overnight missiles; two in serious condition; power cuts round the clock.", src="Reuters", badge="REPORTED"),
+    dict(n=7, kind="kuwait", region="Middle East", field="WAR", head="Drone strike in Kuwait kills two Italians",
+         body="Iranian drones hit an air-defence site; two Rheinmetall technicians die.", src="Reuters", badge="REPORTED"),
     dict(n=8, kind="kim", region="East Asia", field="SECURITY", head="Kim calls for more tactical nuclear arms",
          body="KCNA shows Kim touring three nuclear sites; media urges a wider push.", src="KCNA · Yonhap", badge="OFFICIAL"),
-    dict(n=9, kind="school", region="Africa", field="JUSTICE", head="Nigeria says 24 schoolgirls freed",
-         body="Officials say the girls are safe after the latest school abduction.", src="TRT Afrika", badge="REPORTED"),
+    dict(n=9, kind="garment", region="South Asia", field="LABOUR", head="Garment workers clash with police",
+         body="Tear gas in Gazipur as workers reject a 36% pay rise; highways blocked.", src="Reuters", badge="REPORTED"),
     dict(n=10, kind="tube", region="Europe", field="TRANSPORT", head="London Tube drivers begin eight-strike campaign",
          body="No Piccadilly or Circle line all day; first of eight strikes to February.", src="RMT", badge="REPORTED"),
     dict(n=11, kind="stocks", region="East Asia", field="MARKETS", head="Asian stocks bounce back",
@@ -576,34 +580,33 @@ MIDS = [
     dict(n=13, kind="taipo", region="East Asia", field="MEMORY", head="Hong Kong marks a year since the Tai Po fire",
          body="Residents lay flowers for the 168 dead; no state memorial is held.", src="The Standard", badge="CONFIRMED"),
 ]
-mw, mh = 196, 140
+mw, mh = 196, 146
 for r in range(2):
     for c in range(5):
         m = MIDS[r * 5 + c]
-        x0 = 12 + c * 202; y0 = 460 + r * (mh + 6); x1 = x0 + mw
+        x0 = 12 + c * 202; y0 = 424 + r * (mh + 6); x1 = x0 + mw
         d.rectangle([x0, y0, x1, y0 + mh], fill=(255, 255, 255), outline=(190, 180, 160))
-        scene(d, m["kind"], x0 + 3, y0 + 3, x1 - 3, y0 + 66)
+        scene(d, m["kind"], x0 + 3, y0 + 3, x1 - 3, y0 + 73)
         num_badge(d, x0 + 7, y0 + 7, m["n"], 18)
-        txt(x0 + 5, y0 + 69, f"{m['region'].upper()} — {m['field']}", SANS_B(9), RED, "la")
-        badge(x1 - 78, y0 + 67, m["badge"], (0, 110, 60) if m["badge"] != "OFFICIAL" else NAVY)
-        hl = wrap(m["head"], SERIF_B(13), 182)
+        txt(x0 + 5, y0 + 76, f"{m['region'].upper()} — {m['field']}", SANS_B(8), RED, "la")
+        badge(x1 - 78, y0 + 74, m["badge"], BCOL[m["badge"]])
+        hl = wrap(m["head"], SERIF_B(12), 182)
         for j, ln in enumerate(hl[:2]):
-            txt(x0 + 5, y0 + 82 + j * 14, ln, SERIF_B(13), INK, "la")
+            txt(x0 + 5, y0 + 88 + j * 13, ln, SERIF_B(12), INK, "la")
         bl = wrap(m["body"], SANS(9), 186)
-        by = y0 + 82 + len(hl[:2]) * 14 + 2
+        by = y0 + 88 + len(hl[:2]) * 13 + 2
         for j, ln in enumerate(bl[:2]):
-            txt(x0 + 5, by + j * 9, ln, SANS(9), INK, "la")
-        txt(x0 + 5, y0 + mh - 9, "SOURCE: " + m["src"], SANS(8), GREY, "la")
+            txt(x0 + 5, by + j * 8, ln, SANS(9), INK, "la")
+        txt(x0 + 5, y0 + 136, "SOURCE: " + m["src"], SANS(8), GREY, "la")
 
-# ---------------------------------------------------------------- map + list
-my = 752
-d.rectangle([12, my, 340, my + 130], fill=(215, 228, 235), outline=(190, 180, 160))
-txt(16, my + 4, "WHERE IT HAPPENED — PINS 1–13", SANS_B(11), NAVY, "la")
-# world map: lon/lat polygons -> map box
-MX0, MY0, MW, MH = 16, 772, 320, 96
+# ---------------------------------------------------------------- map (FULL-WIDTH story locator)
+my = 728
+d.rectangle([12, my, W - 12, 884], fill=(22, 48, 78), outline=(190, 180, 160))
+# world map: lon/lat polygons -> full-width map box (lat -45..62)
+MX0, MY0, MW, MH = 16, 748, 992, 126
 def mxy(lon, lat):
-    return (MX0 + (lon + 170) / 360.0 * MW, MY0 + (75 - lat) / 130.0 * MH)
-LAND = (205, 198, 170)
+    return (MX0 + (lon + 170) / 360.0 * MW, MY0 + (62 - lat) / 107.0 * MH)
+LAND = (222, 210, 170)
 CONTINENTS = [
     [(-168, 66), (-140, 70), (-120, 72), (-95, 80), (-75, 73), (-60, 60), (-55, 47), (-70, 42), (-75, 35),
      (-80, 26), (-90, 21), (-97, 16), (-105, 20), (-115, 28), (-125, 40), (-125, 49), (-140, 60), (-155, 58)],
@@ -626,109 +629,115 @@ CONTINENTS = [
 for poly in CONTINENTS:
     d.polygon([mxy(lon, lat) for lon, lat in poly], fill=LAND, outline=(170, 163, 135))
 # Indonesia + Japan + NZ islands
-for lon, lat, rx, ry in [(100, -2, 7, 3), (112, -7, 8, 3), (125, -3, 6, 3), (138, -4, 7, 3),
-                         (140, 38, 3, 6), (142, 43, 3, 5), (167, -41, 3, 5), (174, -41, 3, 4)]:
+for lon, lat, rx, ry in [(100, -2, 20, 4), (112, -7, 22, 4), (125, -3, 16, 4), (138, -4, 18, 4),
+                         (140, 38, 7, 8), (142, 43, 7, 7), (167, -41, 7, 7), (174, -41, 7, 6)]:
     cxp, cyp = mxy(lon, lat)
     d.ellipse([cxp - rx, cyp - ry, cxp + rx, cyp + ry], fill=LAND)
 # grid
-for gx in range(MX0 + 40, MX0 + MW, 40):
-    d.line([gx, MY0, gx, MY0 + MH], fill=(235, 240, 243), width=1)
-for gy in range(MY0 + 24, MY0 + MH, 24):
-    d.line([MX0, gy, MX0 + MW, gy], fill=(235, 240, 243), width=1)
+for gx in range(MX0 + 82, MX0 + MW, 82):
+    d.line([gx, MY0, gx, MY0 + MH], fill=(48, 78, 112), width=1)
+for gy in range(MY0 + 31, MY0 + MH, 31):
+    d.line([MX0, gy, MX0 + MW, gy], fill=(48, 78, 112), width=1)
 # pins: (story, lon, lat, nudge_x, nudge_y)
-PINS = [(1, -74, 40.7, 0, 0), (2, 46.7, 24.6, 0, 0), (3, 72.8, 19.1, 0, 0),
-        (4, 4.35, 50.85, 9, 7), (5, 6.14, 46.2, -3, 12), (6, 127, 37.5, 0, 0),
-        (7, 30.5, 50.45, 2, 0), (8, 125.75, 39.03, -8, 9), (9, 3.4, 6.45, 0, 0),
-        (10, -0.1, 51.5, -1, -1), (11, 139.7, 35.7, 4, -2), (12, 121.56, 25.03, 0, 0),
-        (13, 114.16, 22.32, 0, 0)]
-PIN_REG = {1: "N. America", 2: "Middle East", 3: "South Asia", 4: "Europe", 5: "Europe",
-           6: "East Asia", 7: "Europe", 8: "East Asia", 9: "Africa", 10: "Europe",
+PINS = [(1, 100.5, 13.75, 0, 0), (2, 46.7, 24.6, -14, 6), (3, 72.8, 19.1, 0, 0),
+        (4, 4.35, 50.85, 12, -8), (5, 6.14, 46.2, 10, 12), (6, 127, 37.5, 14, 4),
+        (7, 47.98, 29.38, 16, -10), (8, 125.75, 39.03, -12, -8), (9, 90.4, 24.0, 0, 0),
+        (10, -0.1, 51.5, -16, -6), (11, 139.7, 35.7, 0, 0), (12, 121.56, 25.03, 6, 10),
+        (13, 114.16, 22.32, -10, 8)]
+PIN_REG = {1: "SE Asia", 2: "Middle East", 3: "South Asia", 4: "Europe", 5: "Europe",
+           6: "East Asia", 7: "Middle East", 8: "East Asia", 9: "South Asia", 10: "Europe",
            11: "East Asia", 12: "East Asia", 13: "East Asia"}
-pin_pos = {}
 for n, lon, lat, dx, dy in PINS:
-    px, py = mxy(lon, lat)
-    px, py = px + dx, py + dy
-    pin_pos[n] = (px, py)
+    tx, ty = mxy(lon, lat)
+    px, py = tx + dx, ty + dy
+    if dx or dy:
+        d.line([tx, ty, px, py], fill=(200, 210, 220), width=1)
     col = REGION[PIN_REG[n]]
-    d.ellipse([px - 7, py - 7, px + 7, py + 7], fill=col, outline=(255, 255, 255), width=2)
-    f = SANS_B(9)
+    d.ellipse([px - 8, py - 8, px + 8, py + 8], fill=col, outline=(255, 255, 255), width=2)
+    f = SANS_B(10)
     tw = d.textlength(str(n), font=f)
-    d.text((px - tw / 2, py - 5), str(n), font=f, fill=(255, 255, 255))
+    d.text((px - tw / 2, py - 6), str(n), font=f, fill=(255, 255, 255))
 def map_label(x, y, s, anchor="la"):
-    f = SANS_B(8)
+    f = SANS_B(9)
     for ox, oy in ((-1, 0), (1, 0), (0, -1), (0, 1)):
-        d.text((x + ox, y + oy), s, font=f, fill=(255, 255, 255), anchor=anchor)
-    d.text((x, y), s, font=f, fill=NAVY, anchor=anchor)
-map_label(93, 793, "New York", "ra")
-map_label(209, 796, "Riyadh", "ma")
-map_label(240, 803, "Mumbai", "la")
-map_label(180, 812, "Brussels", "ma")
-map_label(158, 806, "Geneva", "ra")
-map_label(289, 793, "Seoul", "la")
-map_label(205, 786, "Kyiv", "la")
-map_label(178, 824, "Lagos", "la")
-map_label(156, 784, "London", "ra")
-map_label(300, 803, "Tokyo", "la")
-map_label(284, 815, "Taipei", "la")
-map_label(256, 817, "Hong Kong", "ra")
-txt(16, my + 116, "Pins = story numbers 1–13 · colours = regions", SANS(9), GREY, "la")
+        d.text((x + ox, y + oy), s, font=f, fill=NAVY, anchor=anchor)
+    d.text((x, y), s, font=f, fill=(255, 255, 255), anchor=anchor)
+map_label(769, 802, "Bangkok", "la")
+map_label(593, 804, "Riyadh", "ra")
+map_label(680, 812, "Mumbai", "ma")
+map_label(514, 748, "Brussels", "la")
+map_label(517, 785, "Geneva", "la")
+map_label(840, 792, "Seoul", "la")
+map_label(639, 768, "Kuwait", "la")
+map_label(813, 759, "Pyongyang", "ra")
+map_label(734, 806, "Gazipur", "ma")
+map_label(462, 746, "London", "ra")
+map_label(878, 764, "Tokyo", "la")
+map_label(832, 814, "Taipei", "ma")
+map_label(770, 820, "Hong Kong", "ra")
+txt(16, 874, "Pins = story numbers 1–13 · colours = regions", SANS(8), (200, 215, 230), "la")
+d.rectangle([12, my, W - 12, 884], outline=(190, 180, 160))
+# title band last so northern land never overdraws the title text
+d.rectangle([12, my, W - 12, my + 18], fill=(22, 48, 78))
+txt(16, my + 4, "WHERE IT HAPPENED — STORY LOCATOR · PINS 1–13", SANS_B(11), (255, 255, 255), "la")
+txt(W - 16, my + 4, "DARK BLUE OCEAN · NUMBERED PINS · COLOURS = REGIONS", SANS_B(9), (180, 205, 230), "ra")
+d.line([12, my + 18, W - 12, my + 18], fill=(90, 120, 150), width=1)
 
 LIST = [
-    (14, "Virgin Australia staff strike at 4 airports", "ABC", "C", "Oceania"),
-    (15, "US markets shut for Thanksgiving", "NYSE", "O", "N. America"),
-    (16, "India: ₹15,000 crore aid for Nepal", "PTI", "R", "South Asia"),
-    (17, "Norway court voids oil licences", "Reuters", "R", "Europe"),
-    (18, "Zambia bans protest over term limits", "Al Jazeera", "R", "Africa"),
-    (19, "Liberal senator defects to One Nation", "ABC", "R", "Oceania"),
-    (20, "India rejects US case for 25% tariff", "Commerce min.", "O", "South Asia"),
-    (21, "Winter rains threaten Gaza shelter sites", "BBC", "R", "Middle East"),
-    (22, "Six days in a row above 2°C", "Copernicus", "O", "World"),
-    (23, "Korea's rail slows as Korail staff act", "Yonhap", "R", "East Asia"),
-    (24, "M4.0 quake off Labuan, Indonesia", "USGS", "O", "SE Asia"),
-    (25, "Europa League: 17 ties on matchday 5", "UEFA", "C", "Europe"),
-    (26, "US jobless claims fall to 189,000", "Reuters", "R", "N. America"),
-    (27, "Nvidia sell-off drags S&P and Nasdaq down", "Reuters", "R", "N. America"),
-    (28, "EU moves on Chinese car quotas", "Reuters", "R", "Europe"),
-    (29, "Brazil: mosquitoes cut viral infections 68%", "Study", "R", "Latin Am"),
-    (30, "Palm Beach ferries stop as workers walk out", "Medianet", "R", "N. America"),
-    (31, "Small-business complaints jump 21% to 5,644", "AFCA", "R", "Oceania"),
-    (32, "M4.8 quake off Hicks Bay", "USGS", "R", "Oceania"),
-    (33, "Hasina seeks return on 16 Dec", "Dhaka Tribune", "R", "South Asia"),
-    (34, "Davis Cup: Britain v Germany", "Davis Cup", "R", "Europe"),
-    (35, "Sooryavanshi, 15, smashes record 204 off 53", "BCCI", "R", "South Asia"),
-    (36, "NFL Thanksgiving games kick off", "NFL", "C", "N. America"),
+    (14, "Virgin Australia staff strike at 4 airports", "R", "Oceania"),
+    (15, "US markets shut for Thanksgiving", "O", "N. America"),
+    (16, "Trump tells Putin: pull back aggression", "R", "N. America"),
+    (17, "N. Korea pauses missile shipments to Russia", "K", "East Asia"),
+    (18, "Zambia bans protest over term limits", "R", "Africa"),
+    (19, "Trump demands probe of GDP data", "R", "N. America"),
+    (20, "IRGC: two tankers hit by mines in Hormuz", "K", "Middle East"),
+    (21, "UNCTAD: sea trade flat in 2026", "O", "World"),
+    (22, "UK calls up ~100,000 strategic reservists", "O", "Europe"),
+    (23, "Korail work-to-rule slows trains", "R", "East Asia"),
+    (24, "UK signs £8bn submarine deal with Babcock", "O", "Europe"),
+    (25, "Europa League: 18 ties on matchday 5", "C", "Europe"),
+    (26, "Cairo tanker driver held after fatal crash", "R", "Africa"),
+    (27, "Norse Atlantic grounds all flights", "R", "Europe"),
+    (28, "UK net migration 77,000, lowest since 1997", "O", "Europe"),
+    (29, "INTERPOL: 65 held in Neptune VIII sweep", "O", "World"),
+    (30, "Palm Beach ferries stop as workers walk out", "R", "Oceania"),
+    (31, "Thanksgiving storm grounds DC flights", "R", "N. America"),
+    (32, "M4.8 quake off Hicks Bay", "R", "Oceania"),
+    (33, "Congo Ebola tops 12,000 cases", "R", "Africa"),
+    (34, "Davis Cup: Britain v Germany", "R", "Europe"),
+    (35, "ECB picks de Cos to succeed Lagarde", "O", "Europe"),
+    (36, "NFL Thanksgiving games kick off", "C", "N. America"),
 ]
-lx = 350
-txt(lx, my + 4, "ALSO ON THURSDAY 26 NOVEMBER — 23 MORE STORIES", SANS_B(12), NAVY, "la")
-d.line([lx, my + 20, W - 12, my + 20], fill=NAVY, width=2)
-for i, (n, head, src, b, reg) in enumerate(LIST):
-    col = i % 2; row = i // 2
-    x0 = lx + col * 332; y0 = my + 26 + row * 9
+lx = 12
+txt(lx, 888, "ALSO ON THURSDAY 26 NOVEMBER — 23 MORE STORIES", SANS_B(12), NAVY, "la")
+d.line([lx, 904, W - 12, 904], fill=NAVY, width=2)
+for i, (n, head, b, reg) in enumerate(LIST):
+    col = i % 4; row = i // 4
+    x0 = lx + col * 250; y0 = 908 + row * 9
     colr = REGION[reg]
-    d.rectangle([x0, y0, x0 + 16, y0 + 11], fill=colr)
-    txt(x0 + 8, y0, str(n), SANS_B(8), (255, 255, 255), "ma")
-    s = f"{head} [{b}] — {src}"
-    txt(x0 + 20, y0, s, SANS(9), INK, "la")
+    d.rectangle([x0, y0, x0 + 15, y0 + 11], fill=colr)
+    txt(x0 + 7, y0, str(n), SANS_B(8), (255, 255, 255), "ma")
+    s = f"{head} [{b}]"
+    txt(x0 + 19, y0, s, SANS(8), INK, "la")
 
 # ---------------------------------------------------------------- DATE CHECK
-dy = 888
-d.rectangle([12, dy, W - 12, dy + 82], fill=(255, 245, 245), outline=RED, width=2)
-txt(20, dy + 4, "DATE CHECK — THESE ARE NOT 26 NOVEMBER", SANS_B(12), RED, "la")
-txt(20, dy + 20, "Every story above happened or was first reported on Thursday 26 November 2026.", SANS_B(11), INK, "la")
-ex = ("Left out as earlier news:  Cairo tanker fire (Wed 25)  ·  Solomon Islands treaty (Wed 25)  ·  Shenzhou-24 docking (Wed 25)  ·  "
-      "US tariff announcement (Wed 25)  ·  Bangladesh wage rise (Wed 25)  ·  Ras Tanura claim (Wed 25)  ·  "
-      "Gaza security chief killed (Wed 25)  ·  US GDP +4.3% (Wed 25)  ·  N. Korea expels Swiss envoy (Wed 25)  ·  "
-      "Nvidia reinstates Huang (Mon 23)  ·  Real Madrid 5–1 PSV (Tue 24)  ·  COP31 collapse (Sun 22).")
-for j, ln in enumerate(wrap(ex, SANS(10), 980)):
-    txt(20, dy + 36 + j * 12, ln, SANS(10), INK, "la")
-txt(20, dy + 68, "Not yet:  Chess Game 3 result  ·  EU budget deal (Fri 27 Nov)  ·  Taiwan vote (Sat 28 Nov).", SANS_B(10), RED, "la")
+dy = 966
+d.rectangle([12, dy, W - 12, dy + 40], fill=(255, 245, 245), outline=RED, width=2)
+dc_title = "DATE CHECK — THESE ARE NOT 26 NOVEMBER · day shown = Nov"
+txt(20, dy + 4, dc_title, SANS_B(11), RED, "la")
+tw = d.textlength(dc_title, font=SANS_B(11))
+txt(20 + tw + 12, dy + 5, "·  ALSO THU 26 NOV: Bangkok refinery blast · Chess Game 3 drawn in 60 moves, 1.5–1.5",
+    SANS_B(9), NAVY, "la")
+ex = ("Macy's 25 · Kyiv mall 25 · Nigeria girls 24 · India–Nepal aid 23 · Norway oil 13 · Blyth 25 · "
+      "India tariff 25 · Gaza rain 25 · Copernicus 2°C 25 · Labuan quake 25 · US jobless 25 · Nvidia 25 · "
+      "EU car quotas 24 · Brazil mosquitoes 21 · AFCA 25 · Hasina 24 · Sooryavanshi 204 24 · "
+      "Mamdani freeze 25 · Iowa blast 25 · Pongkor flood 23")
+for j, ln in enumerate(wrap(ex, SANS(9), 980)[:2]):
+    txt(20, dy + 17 + j * 10, ln, SANS(9), INK, "la")
 
 # ---------------------------------------------------------------- footer
-txt(12, 976, "OFFICIAL = an authority's own word  ·  CONFIRMED = 2+ major outlets  ·  REPORTED = press report  ·  CLAIM = one side's say, unverified",
-    SANS(10), GREY, "la")
-txt(12, 988, "Sources: Reuters, AP, AFP, BBC, Al Jazeera, Yonhap, FIDE, Bank of Korea, EU Council, PTI — all reported 26 November 2026.  Every drawing original — drawn in code, not photos.",
-    SANS(10), GREY, "la")
-txt(512, 1000, "THE WORLD IN ONE DAY  ·  26 NOV 2026  ·  36 STORIES  ·  10 REGIONS", SANS_B(9), NAVY, "ma")
+txt(12, 1010, "OFFICIAL = authority's own word · CONFIRMED = 2+ outlets · REPORTED = press report · CLAIM = one side's say — Sources: Reuters, AP, BBC, Al Jazeera, Yonhap, FIDE, BoK, UN News, INTERPOL, ONS — drawn in code, not photos.",
+    SANS(7), GREY, "la")
 
 img.save("entry.png")
 print("saved entry.png", img.size)

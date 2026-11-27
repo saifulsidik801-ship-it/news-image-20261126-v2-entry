@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
-"""news-image-20261126 v5 — one-day front page, drawn in code (PIL only, no photos).
+"""news-image-20261126 v6 — one-day front page, drawn in code (PIL only, no photos).
 36 stories: 3 heroes + 10 mids + 23 list. All happened / first reported Thu 26 Nov 2026.
-v5: full story-date rebuild (17 wrong-date stories replaced, each verified against a
-primary Reuters/AP/BBC/UN News wire dated 26 Nov); full-width story-locator map;
-hero 2 redrawn as a real night interception scene; hero 1 = Bangkok refinery blast."""
+v6 vs v5: bigger full-width story-locator map (taller, re-spaced labels); hero 2
+redrawn as a concrete Riyadh night scene (Kingdom Centre + Faisaliah globe towers,
+street level with cars, two interceptor streaks, no abstract beam); mid art taller
+(70 -> 81px) and scene-led; denser detail in hero 1/3; body wording tightened on
+#7 (attribution disputed), #10 and #13 (unverified claims dropped). Same 36-story set,
+#22 keeps the fixed "UK writes to ~100,000 strategic reservists" wording."""
 from PIL import Image, ImageDraw, ImageFont
 import math, random
 
@@ -156,51 +159,90 @@ def scene(dr, kind, x0, y0, x1, y1):
         dr.arc([x0 + 52, y1 - 34, x0 + 96, y1 - 6], 300, 20, fill=(170, 220, 245), width=2)
         for i, px in enumerate((x0 + 66, x0 + 80, x0 + 94)):
             person(dr, px, y1 - 8, 15, (240, 200, 40) if i % 2 else (30, 90, 160), (40, 40, 40))
+        # second fire truck (right) + extra storage tank + crane silhouette
+        dr.rectangle([x1 - 92, y1 - 22, x1 - 52, y1 - 8], fill=(200, 40, 40))
+        dr.rectangle([x1 - 66, y1 - 22, x1 - 52, y1 - 14], fill=(200, 40, 40))
+        dr.rectangle([x1 - 64, y1 - 19, x1 - 55, y1 - 15], fill=(170, 220, 240))
+        dr.ellipse([x1 - 88, y1 - 10, x1 - 80, y1 - 2], fill=(25, 25, 25))
+        dr.ellipse([x1 - 62, y1 - 10, x1 - 54, y1 - 2], fill=(25, 25, 25))
+        dr.arc([x1 - 52, y1 - 34, x1 - 8, y1 - 6], 320, 40, fill=(170, 220, 245), width=2)
+        dr.ellipse([x0 + 200, y1 - 52, x0 + 234, y1 - 40], fill=(190, 190, 195))
+        dr.rectangle([x0 + 200, y1 - 46, x0 + 234, y1 - 26], fill=(200, 200, 205))
+        dr.line([x0 + 204, y1 - 46, x0 + 230, y1 - 46], fill=(150, 150, 155), width=1)
+        dr.line([x0 + 250, y0 + 30, x0 + 250, y1 - 26], fill=(90, 90, 100), width=2)
+        dr.line([x0 + 250, y0 + 30, x0 + 286, y0 + 38], fill=(90, 90, 100), width=2)
+        dr.line([x0 + 286, y0 + 38, x0 + 286, y0 + 52], fill=(90, 90, 100), width=1)
         pill(dr, x1 - 62, y0 + 4, x1 - 4, y0 + 18, (200, 40, 40), "9 HURT", 10)
     elif kind == "riyadh":
-        # Night interception over the Riyadh skyline: towers, two interceptor
-        # trails, two explosion bursts, a ground launcher firing upward.
-        vgrad(dr, x0, y0, x1, y1, (8, 16, 40), (28, 44, 80))
+        # Night interception over Riyadh, concrete scene: Kingdom Centre tower
+        # (arch cut-out) + Al Faisaliah globe tower, lit skyline, street level
+        # with cars, two interceptor streaks rising from ground launchers to
+        # two bursts. No abstract beam — every element is a real object.
+        vgrad(dr, x0, y0, x1, y1, (8, 16, 40), (30, 46, 82))
         rnd = random.Random(5)
-        for _ in range(30):
-            sx = rnd.randint(x0 + 2, x1 - 2); sy = rnd.randint(y0 + 2, y0 + 40)
+        for _ in range(34):
+            sx = rnd.randint(x0 + 2, x1 - 2); sy = rnd.randint(y0 + 2, y0 + 34)
             dr.ellipse([sx, sy, sx + 2, sy + 2], fill=(255, 255, 255))
-        buildings(dr, x0, y0 + 52, x1, y1, 17, (30, 45, 80), (255, 210, 90), 0.6)
-        # Kingdom Centre tower with arch
-        tx = x1 - 78
-        dr.rectangle([tx, y0 + 34, tx + 26, y1], fill=(38, 55, 95))
-        dr.polygon([(tx, y0 + 34), (tx + 26, y0 + 34), (tx + 13, y0 + 20)], fill=(38, 55, 95))
-        dr.ellipse([tx + 6, y0 + 40, tx + 20, y0 + 58], fill=(10, 18, 42))
-        for wy in range(y0 + 62, y1 - 4, 10):
+        # crescent moon, top right
+        dr.ellipse([x1 - 34, y0 + 6, x1 - 14, y0 + 26], fill=(250, 240, 200))
+        dr.ellipse([x1 - 30, y0 + 4, x1 - 10, y0 + 24], fill=(12, 20, 46))
+        # skyline: mid towers with lit windows, left and centre
+        buildings(dr, x0, y0 + 48, x1 - 90, y1 - 14, 17, (30, 45, 80), (255, 210, 90), 0.6)
+        # Kingdom Centre tower (right): tall slab + inverted-arch cut-out
+        tx = x1 - 82
+        dr.rectangle([tx, y0 + 26, tx + 28, y1 - 14], fill=(42, 60, 100))
+        dr.polygon([(tx, y0 + 26), (tx + 28, y0 + 26), (tx + 14, y0 + 44)], fill=(42, 60, 100))
+        dr.ellipse([tx + 7, y0 + 34, tx + 21, y0 + 54], fill=(10, 18, 42))
+        for wy in range(y0 + 58, y1 - 18, 9):
             dr.rectangle([tx + 4, wy, tx + 8, wy + 4], fill=(255, 210, 90))
-            dr.rectangle([tx + 18, wy, tx + 22, wy + 4], fill=(255, 210, 90))
-        # incoming missile streak (top-left, bright head + trail)
-        dr.line([x0 + 18, y0 + 10, x0 + 66, y0 + 34], fill=(255, 240, 200), width=2)
-        dr.ellipse([x0 + 62, y0 + 30, x0 + 70, y0 + 38], fill=(255, 200, 80))
-        # interceptor arcs (thin white-gold trails, not beams)
-        dr.arc([x0 + 8, y0 + 2, x1 - 40, y0 + 78], 200, 335, fill=(255, 220, 140), width=2)
-        dr.arc([x0 + 46, y0 + 14, x1 - 8, y0 + 92], 205, 325, fill=(255, 170, 90), width=2)
-        # two interception bursts: starburst rays + small hot core (no big disc)
-        burst(dr, x1 - 52, y0 + 26, 14, (255, 200, 80))
-        burst(dr, x0 + 62, y0 + 38, 11, (255, 220, 100))
-        for r, col in [(9, (255, 150, 40)), (5, (255, 210, 90))]:
-            dr.ellipse([x1 - 52 - r, y0 + 26 - r, x1 - 52 + r, y0 + 26 + r], fill=col)
-            dr.ellipse([x0 + 62 - r, y0 + 38 - r, x0 + 62 + r, y0 + 38 + r], fill=col)
-        # ground launcher (left) firing a rising interceptor
-        lx0, ly = x0 + 96, y1 - 6
-        dr.rectangle([lx0, ly - 12, lx0 + 46, ly], fill=(60, 80, 60))
-        dr.rectangle([lx0 + 32, ly - 18, lx0 + 46, ly - 12], fill=(70, 90, 70))
-        for wx in (lx0 + 6, lx0 + 20, lx0 + 34):
+            dr.rectangle([tx + 20, wy, tx + 24, wy + 4], fill=(255, 210, 90))
+        # Al Faisaliah globe tower (centre-right): shaft + glass globe
+        gx = x0 + 196
+        dr.rectangle([gx, y0 + 44, gx + 16, y1 - 14], fill=(36, 52, 88))
+        dr.ellipse([gx - 2, y0 + 28, gx + 18, y0 + 46], fill=(150, 200, 235), outline=(220, 235, 245))
+        dr.line([gx + 8, y0 + 28, gx + 8, y0 + 46], fill=(220, 235, 245), width=1)
+        for wy in range(y0 + 50, y1 - 18, 10):
+            dr.rectangle([gx + 3, wy, gx + 7, wy + 4], fill=(255, 210, 90))
+            dr.rectangle([gx + 10, wy, gx + 14, wy + 4], fill=(255, 210, 90))
+        # incoming missile streak (top-left): bright head + dotted trail
+        dr.line([x0 + 14, y0 + 8, x0 + 58, y0 + 30], fill=(255, 240, 200), width=2)
+        for i in range(5):
+            ix = x0 + 16 + i * 9; iy = y0 + 9 + i * 4
+            dr.ellipse([ix, iy, ix + 2, iy + 2], fill=(255, 220, 150))
+        dr.ellipse([x0 + 56, y0 + 27, x0 + 64, y0 + 35], fill=(255, 200, 80))
+        # interceptor 1: ground launcher (left) fires a steep rising streak
+        lx0, ly = x0 + 30, y1 - 14
+        dr.rectangle([lx0, ly - 10, lx0 + 40, ly], fill=(60, 80, 60))
+        for wx in (lx0 + 5, lx0 + 18, lx0 + 29):
             dr.ellipse([wx, ly - 2, wx + 8, ly + 4], fill=(20, 20, 20))
-        mx = lx0 + 14
-        dr.polygon([(mx - 4, ly - 12), (mx - 4, y0 + 52), (mx, y0 + 44), (mx + 4, y0 + 52), (mx + 4, ly - 12)],
-                   fill=(225, 225, 225))
-        dr.polygon([(mx - 3, ly - 12), (mx + 3, ly - 12), (mx + 6, ly - 2), (mx - 6, ly - 2)], fill=(255, 140, 40))
-        # alert lights on rooftops
-        for ax in (x0 + 30, x0 + 150, x1 - 110):
-            dr.ellipse([ax, y0 + 48, ax + 5, y0 + 53], fill=(255, 60, 60))
-        dr.rounded_rectangle([x0 + 34, y0 + 5, x0 + 162, y0 + 23], 3, fill=(10, 18, 42))
-        txt(x0 + 38, y0 + 8, "2 MISSILES DOWN", SANS_B(12), (255, 220, 80), "la")
+        dr.line([lx0 + 20, ly - 10, x0 + 92, y0 + 42], fill=(255, 230, 160), width=2)
+        dr.line([lx0 + 20, ly - 10, x0 + 92, y0 + 42], fill=(255, 255, 255), width=1)
+        # interceptor 2: second launcher (centre) fires a shallower streak
+        lx2 = x0 + 130
+        dr.rectangle([lx2, ly - 10, lx2 + 36, ly], fill=(60, 80, 60))
+        for wx in (lx2 + 5, lx2 + 17, lx2 + 27):
+            dr.ellipse([wx, ly - 2, wx + 8, ly + 4], fill=(20, 20, 20))
+        dr.line([lx2 + 18, ly - 10, x1 - 52, y0 + 30], fill=(255, 200, 110), width=2)
+        # two interception bursts where streaks meet the incoming missiles
+        burst(dr, x0 + 92, y0 + 42, 12, (255, 200, 80))
+        burst(dr, x1 - 52, y0 + 30, 14, (255, 200, 80))
+        for (bx, by) in ((x0 + 92, y0 + 42), (x1 - 52, y0 + 30)):
+            for r, col in [(8, (255, 150, 40)), (4, (255, 215, 90))]:
+                dr.ellipse([bx - r, by - r, bx + r, by + r], fill=col)
+        # falling debris dots under the bursts
+        for dx, dy in [(x0 + 84, y0 + 56), (x0 + 100, y0 + 60), (x1 - 60, y0 + 46), (x1 - 44, y0 + 50)]:
+            dr.ellipse([dx, dy, dx + 2, dy + 2], fill=(255, 180, 80))
+        # street level: road, cars with headlights, street lamps
+        dr.rectangle([x0, y1 - 14, x1, y1], fill=(24, 28, 40))
+        dr.line([x0 + 4, y1 - 7, x1 - 4, y1 - 7], fill=(240, 220, 60), width=1)
+        for cxp, col in ((x0 + 90, (200, 40, 40)), (x0 + 160, (40, 120, 200)), (x1 - 120, (220, 220, 220))):
+            dr.rectangle([cxp, y1 - 13, cxp + 18, y1 - 8], fill=col)
+            dr.ellipse([cxp + 15, y1 - 11, cxp + 18, y1 - 8], fill=(255, 240, 150))
+        for lx in (x0 + 12, x0 + 120, x1 - 100):
+            dr.line([lx, y1 - 14, lx, y1 - 26], fill=(120, 120, 130), width=1)
+            dr.ellipse([lx - 2, y1 - 28, lx + 2, y1 - 24], fill=(255, 220, 120))
+        dr.rounded_rectangle([x0 + 44, y0 + 4, x0 + 172, y0 + 20], 3, fill=(10, 18, 42))
+        txt(x0 + 48, y0 + 7, "2 MISSILES DOWN", SANS_B(12), (255, 220, 80), "la")
     elif kind == "mumbai":
         # Gateway of India at dusk, rows of lit candles, marigolds, flags.
         vgrad(dr, x0, y0, x1, y1, (235, 165, 85), (252, 222, 165))
@@ -223,6 +265,9 @@ def scene(dr, kind, x0, y0, x1, y1):
             dr.rectangle([fx, y0 + 34, fx + 18, y0 + 40], fill=(255, 140, 40))
             dr.rectangle([fx, y0 + 40, fx + 18, y0 + 46], fill=(255, 255, 255))
             dr.rectangle([fx, y0 + 46, fx + 18, y0 + 52], fill=(20, 140, 60))
+        # mourners standing at the sides, heads bowed
+        for px, shirt in ((x0 + 22, (40, 60, 110)), (x0 + 44, (110, 40, 60)), (x1 - 44, (40, 90, 60)), (x1 - 22, (90, 70, 30))):
+            person(dr, px, y1 - 40, 17, shirt, (35, 35, 35))
         # ground + marigolds + two rows of candles
         dr.rectangle([x0, y1 - 40, x1, y1], fill=(120, 82, 52))
         rnd = random.Random(9)
@@ -539,7 +584,7 @@ HEROES = [
          body="Tributes for the 166 killed in the 2008 Mumbai attacks, as the nation marks 77 years of its Constitution.",
          why="WHY: the date itself is the anniversary. — PTI · PIB", badge="OFFICIAL"),
 ]
-hy, hh = 198, 220
+hy, hh = 198, 216
 for i, h in enumerate(HEROES):
     x0 = 12 + i * 336; x1 = x0 + 328
     d.rectangle([x0, hy, x1, hy + hh], fill=(255, 255, 255), outline=(190, 180, 160))
@@ -566,44 +611,44 @@ MIDS = [
     dict(n=6, kind="bok", region="East Asia", field="ECONOMY", head="Bank of Korea lifts key rate to 3.25%",
          body="First above 3% since 2024; two of seven dissent.", src="Bank of Korea", badge="OFFICIAL"),
     dict(n=7, kind="kuwait", region="Middle East", field="WAR", head="Drone strike in Kuwait kills two Italians",
-         body="Iranian drones hit an air-defence site; two Rheinmetall technicians die.", src="Reuters", badge="REPORTED"),
+         body="Drones hit an air-defence site; two Rheinmetall technicians die.", src="Reuters", badge="REPORTED"),
     dict(n=8, kind="kim", region="East Asia", field="SECURITY", head="Kim calls for more tactical nuclear arms",
          body="KCNA shows Kim touring three nuclear sites; media urges a wider push.", src="KCNA · Yonhap", badge="OFFICIAL"),
     dict(n=9, kind="garment", region="South Asia", field="LABOUR", head="Garment workers clash with police",
          body="Tear gas in Gazipur as workers reject a 36% pay rise; highways blocked.", src="Reuters", badge="REPORTED"),
     dict(n=10, kind="tube", region="Europe", field="TRANSPORT", head="London Tube drivers begin eight-strike campaign",
-         body="No Piccadilly or Circle line all day; first of eight strikes to February.", src="RMT", badge="REPORTED"),
+         body="No Piccadilly or Circle line all day; first of eight strikes.", src="RMT", badge="REPORTED"),
     dict(n=11, kind="stocks", region="East Asia", field="MARKETS", head="Asian stocks bounce back",
          body="Kospi +2%, Nikkei +1.8% early on, a day after the AI-doubts rout.", src="Yonhap", badge="REPORTED"),
     dict(n=12, kind="taiwan", region="East Asia", field="TRADE", head="Taiwan answers US tariff plan",
          body="Top rate 15%, Taiwan says — Thursday's reply to the US announcement.", src="CNA", badge="OFFICIAL"),
     dict(n=13, kind="taipo", region="East Asia", field="MEMORY", head="Hong Kong marks a year since the Tai Po fire",
-         body="Residents lay flowers for the 168 dead; no state memorial is held.", src="The Standard", badge="CONFIRMED"),
+         body="Residents lay flowers for the 168 dead; the city remembers.", src="The Standard", badge="CONFIRMED"),
 ]
-mw, mh = 196, 146
+mw, mh = 196, 150
 for r in range(2):
     for c in range(5):
         m = MIDS[r * 5 + c]
-        x0 = 12 + c * 202; y0 = 424 + r * (mh + 6); x1 = x0 + mw
+        x0 = 12 + c * 202; y0 = 416 + r * (mh + 6); x1 = x0 + mw
         d.rectangle([x0, y0, x1, y0 + mh], fill=(255, 255, 255), outline=(190, 180, 160))
-        scene(d, m["kind"], x0 + 3, y0 + 3, x1 - 3, y0 + 73)
+        scene(d, m["kind"], x0 + 3, y0 + 3, x1 - 3, y0 + 84)
         num_badge(d, x0 + 7, y0 + 7, m["n"], 18)
-        txt(x0 + 5, y0 + 76, f"{m['region'].upper()} — {m['field']}", SANS_B(8), RED, "la")
-        badge(x1 - 78, y0 + 74, m["badge"], BCOL[m["badge"]])
+        txt(x0 + 5, y0 + 87, f"{m['region'].upper()} — {m['field']}", SANS_B(8), RED, "la")
+        badge(x1 - 78, y0 + 85, m["badge"], BCOL[m["badge"]])
         hl = wrap(m["head"], SERIF_B(12), 182)
         for j, ln in enumerate(hl[:2]):
-            txt(x0 + 5, y0 + 88 + j * 13, ln, SERIF_B(12), INK, "la")
+            txt(x0 + 5, y0 + 99 + j * 12, ln, SERIF_B(12), INK, "la")
         bl = wrap(m["body"], SANS(9), 186)
-        by = y0 + 88 + len(hl[:2]) * 13 + 2
+        by = y0 + 99 + len(hl[:2]) * 12 + 2
         for j, ln in enumerate(bl[:2]):
             txt(x0 + 5, by + j * 8, ln, SANS(9), INK, "la")
-        txt(x0 + 5, y0 + 136, "SOURCE: " + m["src"], SANS(8), GREY, "la")
+        txt(x0 + 5, y0 + 141, "SOURCE: " + m["src"], SANS(8), GREY, "la")
 
 # ---------------------------------------------------------------- map (FULL-WIDTH story locator)
-my = 728
+my = 722
 d.rectangle([12, my, W - 12, 884], fill=(22, 48, 78), outline=(190, 180, 160))
 # world map: lon/lat polygons -> full-width map box (lat -45..62)
-MX0, MY0, MW, MH = 16, 748, 992, 126
+MX0, MY0, MW, MH = 16, 742, 992, 132
 def mxy(lon, lat):
     return (MX0 + (lon + 170) / 360.0 * MW, MY0 + (62 - lat) / 107.0 * MH)
 LAND = (222, 210, 170)
@@ -662,19 +707,19 @@ def map_label(x, y, s, anchor="la"):
     for ox, oy in ((-1, 0), (1, 0), (0, -1), (0, 1)):
         d.text((x + ox, y + oy), s, font=f, fill=NAVY, anchor=anchor)
     d.text((x, y), s, font=f, fill=(255, 255, 255), anchor=anchor)
-map_label(769, 802, "Bangkok", "la")
-map_label(593, 804, "Riyadh", "ra")
-map_label(680, 812, "Mumbai", "ma")
-map_label(514, 748, "Brussels", "la")
-map_label(517, 785, "Geneva", "la")
-map_label(840, 792, "Seoul", "la")
-map_label(639, 768, "Kuwait", "la")
-map_label(813, 759, "Pyongyang", "ra")
-map_label(734, 806, "Gazipur", "ma")
-map_label(462, 746, "London", "ra")
-map_label(878, 764, "Tokyo", "la")
-map_label(832, 814, "Taipei", "ma")
-map_label(770, 820, "Hong Kong", "ra")
+map_label(745, 812, "Bangkok", "ma")
+map_label(586, 800, "Riyadh", "ra")
+map_label(672, 801, "Mumbai", "ra")
+map_label(520, 736, "Brussels", "la")
+map_label(498, 780, "Geneva", "ra")
+map_label(852, 784, "Seoul", "la")
+map_label(644, 760, "Kuwait", "la")
+map_label(808, 748, "Pyongyang", "ra")
+map_label(722, 796, "Gazipur", "ra")
+map_label(456, 736, "London", "ra")
+map_label(880, 760, "Tokyo", "la")
+map_label(830, 808, "Taipei", "la")
+map_label(789, 778, "Hong Kong", "ma")
 txt(16, 874, "Pins = story numbers 1–13 · colours = regions", SANS(8), (200, 215, 230), "la")
 d.rectangle([12, my, W - 12, 884], outline=(190, 180, 160))
 # title band last so northern land never overdraws the title text

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""news-image-20261126 v5 entrypoint (standard library only).
+"""news-image-20261126 v6 entrypoint (standard library only).
 
 Copies the pre-rendered entry.png (drawn by render.py, PIL, at build time)
 to $MAKEFUN_OUTPUT_DIR/entry.png. Deterministic: both runs write the
